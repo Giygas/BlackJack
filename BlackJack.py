@@ -150,8 +150,8 @@ class Player:
 
     #Cleans his hand of cards
     def clearhand(self):
-       del self.hand
-       self.hand = Hand()
+        del self.hand
+        self.hand = Hand()
     
     def handvalue(self):
         return self.hand.handvalue()
