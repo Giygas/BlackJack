@@ -120,6 +120,7 @@ class Player:
         self.name = name
         self.money = int(money)
         self.hand = Hand()
+        self.busted = False
 
     #Prints Player name and his actual money
     def __str__(self):
@@ -128,6 +129,7 @@ class Player:
     #Winning or losing money
     def win(self, wsum):
         self.money += int(wsum)
+        self.busted = False
 
     #Display the remaining money
     def remaining_money(self):
@@ -138,6 +140,7 @@ class Player:
             return False
         else:
             self.money -= amount
+            self.bet = amount
             return True
 
     #Adding a card to his hand
@@ -156,6 +159,10 @@ class Player:
     def handvalue(self):
         return self.hand.handvalue()
 
+    def isBusted(self):
+        if self.hand.handbusted():
+            self.busted = True
+        return self.busted
 
 #Defining the dealer class as a child of Player
 class Dealer(Player):
@@ -220,87 +227,107 @@ if __name__ == "__main__":
         name = input("Please insert your name: ")
         while money.isdigit() is False:
             money = input("How much money do you want to lose: ")
+            print(" - NEXT VICTIM - ")
             if money.isdigit() is False:
                 print("You must input a number")
                 time.sleep(1)
         playerslist.append(Player(name, money))
+        money = ""
 
     #Main game loop
-    while True:
-        clrscr()
-        print(f"{'Welcome':^60}")
-        print(player1)
-        print('How much do you want to bet? (0 for leaving the table)')
-        #Check for integer input
-        try:
-            bet = int(input('Bet: '))
-            if bet == 0:
-                break
-        except:
-            print('You must input a number')
-            time.sleep(1)
-            continue
-        #If the player is able to bet
-        if player1.betting(bet):
-            handon = True
-            #2 cards for the player and 2 for the dealer
-            player1.add_cards(deck.deal_one())
-            dealer.add_cards(deck.deal_one())
-            player1.add_cards(deck.deal_one())
-            dealer.add_cards(deck.deal_one())
-            pchoice = 2
-            while handon is True:
+    while len(playerslist) > 0:
+        for p in playerslist:
+            while True:
                 clrscr()
-                print(player1)
-                print(f'Money in play: {bet:>10}')
-                print("="*40)
-                #show the player his hand
-                print('PLAYER HAND')
-                player1.printhand()
-                print(f'{" ":>60}DEALER HAND')
-                dealer.printhand()
-                #Determining the winner 
-                if player1.hand.handbusted() or dealer.hand.isblackjack(): 
-                    housewins()
-                    time.sleep(2)
-                    break
-                elif dealer.hand.handbusted() or player1.hand.isblackjack() or (player1.hand.isblackjack() and dealer.hand.isblackjack()):
-                    playerwins()
-                    time.sleep(2)
-                    break
-                elif pchoice == 1:
-                    if player1.handvalue()>dealer.handvalue():
-                        playerwins()
+                print(f"{'Welcome':^60}")
+                print(p)
+                print('How much do you want to bet? (0 for leaving the table)')
+                #Check for integer input
+                try:
+                    bet = int(input('Bet: '))
+                    if bet == 0:
+                        playerslist.pop(0) #removes the player from the playerlist
+                        break
+                    elif p.betting(bet):
+                        p.add_cards(deck.deal_one())
+                        p.add_cards(deck.deal_one())
+                        break
                     else:
-                        housewins()
-                    time.sleep(2)
-                    break
-                else:
-                    try:
-                    #Choice to make 
+                        print("Sorry, you don't have enough money")
+                        time.sleep(1)
+                        continue
+                except:
+                    print('You must input a number')
+                    time.sleep(1)
+                    continue
+        #2 cards for the dealer
+        dealer.add_cards(deck.deal_one())
+        dealer.add_cards(deck.deal_one())
+        while True:
+            clrscr()
+            for p in playerslist:
+                print(p)
+                print(f'Money in play: {p.bet:>10}')
+                print("-"*20)
+                print('PLAYER HAND')
+                p.printhand()
+                if p.isBusted():
+                    print("*"*10 + "BUSTED :(")
+                print("="*60)
+                time.sleep(1)
+            print(f'{" ":>60}DEALER HAND')
+            dealer.printhand()
+            if dealer.isBusted():
+                print("Dealer Busted")
+                for p in playerslist:
+                    if not p.isBusted():
+                        p.win(p.bet*2)
+                    p.clearhand()
+                dealer.clearhand()
+                time.sleep(2)
+                break
+            #Determining the winner 
+            # if player1.hand.handbusted() or dealer.hand.isblackjack(): 
+            #     housewins()
+            #     time.sleep(2)
+            #     break
+            # elif dealer.hand.handbusted() or player1.hand.isblackjack() or (player1.hand.isblackjack() and dealer.hand.isblackjack()):
+            #     playerwins()
+            #     time.sleep(2)
+            #     break
+            # elif pchoice == 1:
+            #     if player1.handvalue()>dealer.handvalue():
+            #         playerwins()
+            #     else:
+            #         housewins()
+            #     time.sleep(2)
+            #     break
+            # else:
+            try:
+            #Choice to make for each player
+                for p in playerslist:
+                    if not p.isBusted():
+                        print(f"PLAYER: {p.name}")
                         print('1. Stand')
                         print('2. Hit')
                         pchoice = int(input("Choice: "))
                         if pchoice == 2:
-                            player1.add_cards(deck.deal_one())
+                            p.add_cards(deck.deal_one())
+                        elif pchoice == 1:
+                            #If the player choses to stand, the dealer keeps playing
                             if dealer.plays():
                                 dealer.add_cards(deck.deal_one())
                             continue
-                        elif pchoice == 1:
-                            #If the player choses to stand, the dealer keeps playing
-                            while dealer.plays():
-                                dealer.add_cards(deck.deal_one())
                         else:
                             print('You must choose a valid option')
                             time.sleep(1)
                             continue
-                    except: 
-                        print('Sorry, you must choose a valid option')
-                        time.sleep(1)
-                        continue
-        else:
-            print("Sorry, you don't have enough money")
-            time.sleep(1)
-
+                # TODO #
+                # Need to continue here what happens after there are no more plays available
+                # Winner detection here
+            except: 
+                print('Sorry, you must choose a valid option')
+                time.sleep(1)
+                continue
 printend()
 time.sleep(3)
