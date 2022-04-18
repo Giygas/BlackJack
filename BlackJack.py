@@ -178,12 +178,24 @@ def printwelcome():
     print("{0:<10}{1:^60}{2:>10}".format("*","Good Luck !","*"))
     print("*"*80)
 
+#End message 
 def printend():
     print("*"*80)
     print("{0:<10}{1:^60}{2:>10}".format("*","Well, we hope you had fun at least","*"))
     print("{0:<10}{1:^60}{2:>10}".format("*","See you next time","*"))
     print("*"*80)
 
+#Prints house win and clear hands
+def housewins():
+    print(f"{'*** House wins ***':^50}")
+    player1.clearhand()
+    dealer.clearhand()
+#Prints hand won, adds the money to the player and clear hands
+def playerwins():
+    print(f"{'*** Hand won ***':^50}")
+    player1.win(bet*2)
+    player1.clearhand()
+    dealer.clearhand()
 
 #Main program
 if __name__ == "__main__":
@@ -241,25 +253,18 @@ if __name__ == "__main__":
                 dealer.printhand()
                 #Determining the winner 
                 if player1.hand.handbusted() or dealer.hand.isblackjack(): 
-                    print(f"{'*** House wins ***':^50}")
-                    player1.clearhand()
-                    dealer.clearhand()
+                    housewins()
                     time.sleep(2)
                     break
                 elif dealer.hand.handbusted() or player1.hand.isblackjack() or (player1.hand.isblackjack() and dealer.hand.isblackjack()):
-                    print(f"{'*** Hand won ***':^50}")
-                    player1.win(bet*2)
-                    player1.clearhand()
-                    dealer.clearhand()
+                    playerwins()
                     time.sleep(2)
                     break
                 elif pchoice == 1:
                     if player1.handvalue()>dealer.handvalue():
-                        print(f"{'*** Hand won ***':^50}")
+                        playerwins()
                     else:
-                        print(f"{'*** House wins ***':^50}")
-                    player1.clearhand()
-                    dealer.clearhand()
+                        housewins()
                     time.sleep(2)
                     break
                 else:
