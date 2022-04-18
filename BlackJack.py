@@ -209,13 +209,21 @@ if __name__ == "__main__":
     printwelcome()
     #Requesting user data
     money = ""
-    name = input("Please insert your name: ")
-    while money.isdigit() is False:
-        money = input("How much money do you want to lose: ")
-        if money.isdigit() is False:
-            print("You must input a number")
-            time.sleep(1)
-    player1 = Player(name, money)
+    maxplayers = [1,2,3]
+    playerslist = []
+    totalplayers = 0
+    while totalplayers not in maxplayers:
+        totalplayers = int(input("Number of players (Max 3): "))
+        if totalplayers not in maxplayers:
+            print("Sorry you must input a valid option")
+    for p in range(totalplayers):
+        name = input("Please insert your name: ")
+        while money.isdigit() is False:
+            money = input("How much money do you want to lose: ")
+            if money.isdigit() is False:
+                print("You must input a number")
+                time.sleep(1)
+        playerslist.append(Player(name, money))
 
     #Main game loop
     while True:
