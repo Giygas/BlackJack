@@ -241,13 +241,13 @@ if __name__ == "__main__":
                 dealer.printhand()
                 #Determining the winner 
                 if player1.hand.handbusted() or dealer.hand.isblackjack(): 
-                    print("House wins")
+                    print(f"{'*** House wins ***':^50}")
                     player1.clearhand()
                     dealer.clearhand()
                     time.sleep(2)
                     break
                 elif dealer.hand.handbusted() or player1.hand.isblackjack() or (player1.hand.isblackjack() and dealer.hand.isblackjack()):
-                    print("Hand won")
+                    print(f"{'*** Hand won ***':^50}")
                     player1.win(bet*2)
                     player1.clearhand()
                     dealer.clearhand()
@@ -255,9 +255,9 @@ if __name__ == "__main__":
                     break
                 elif pchoice == 1:
                     if player1.handvalue()>dealer.handvalue():
-                        print("Hand won")
+                        print(f"{'*** Hand won ***':^50}")
                     else:
-                        print("House wins")
+                        print(f"{'*** House wins ***':^50}")
                     player1.clearhand()
                     dealer.clearhand()
                     time.sleep(2)
