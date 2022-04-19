@@ -286,8 +286,8 @@ if __name__ == "__main__":
                 dealer.clearhand()
                 time.sleep(2)
                 break
-            #Determining the winner 
-            # if player1.hand.handbusted() or dealer.hand.isblackjack(): 
+            #Determining the winner
+            # if player1.hand.handbusted() or dealer.hand.isblackjack():
             #     housewins()
             #     time.sleep(2)
             #     break
@@ -325,7 +325,7 @@ if __name__ == "__main__":
                 # TODO #
                 # Need to continue here what happens after there are no more plays available
                 # Winner detection here
-            except: 
+            except:
                 print('Sorry, you must choose a valid option')
                 time.sleep(1)
                 continue
