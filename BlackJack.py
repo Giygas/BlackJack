@@ -40,6 +40,7 @@ values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8,
 #Every player will have a hand containing cards
 class Hand:
 
+
     def __init__(self):
         self.cards = []
         self.value = 0
@@ -98,6 +99,7 @@ class Card:
 
 #A deck of cards
 class Deck:
+
     #For each suit and rank, create a card object 
     def __init__(self):
         self.cards = []
@@ -115,6 +117,7 @@ class Deck:
 
 
 class Player:
+
 
     def __init__(self, name, money):
         self.name = name
@@ -166,6 +169,8 @@ class Player:
 
 #Defining the dealer class as a child of Player
 class Dealer(Player):
+
+
     def printhand(self):
         print(self.hand.__str__(1))
     
@@ -176,6 +181,29 @@ class Dealer(Player):
         else:
             return True
 
+#Defining the round class.
+class Round:
+
+
+    def __init__(self):
+        self.player = []
+    
+    def addPlayer(self, p):
+        self.player.append(p)
+
+    def removePlayer(self, p):
+        self.player.remove(p)
+
+    def hasPlayers(self):
+        if self.player:
+            return True
+        else:
+            return False
+
+
+
+
+############################ Printing Functions ###################################
 #Welcome message
 def printwelcome():
     print("*"*80)
@@ -249,6 +277,7 @@ if __name__ == "__main__":
                         playerslist.pop(0) #removes the player from the playerlist
                         break
                     elif p.betting(bet):
+                        ## TODO initialize the round class and add the player
                         p.add_cards(deck.deal_one())
                         p.add_cards(deck.deal_one())
                         break
