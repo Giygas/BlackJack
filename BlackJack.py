@@ -265,6 +265,7 @@ if __name__ == "__main__":
         dealer.add_cards(deck.deal_one())
         while True:
             clrscr()
+            #Show each player hand
             for p in playerslist:
                 print(p)
                 print(f'Money in play: {p.bet:>10}')
@@ -276,7 +277,9 @@ if __name__ == "__main__":
                 print("="*60)
                 time.sleep(1)
             print(f'{" ":>60}DEALER HAND')
+            #Show the dealer hand
             dealer.printhand()
+            #If the dealer is busted, all players that are not busted wins
             if dealer.isBusted():
                 print("Dealer Busted")
                 for p in playerslist:
@@ -314,7 +317,10 @@ if __name__ == "__main__":
                         if pchoice == 2:
                             p.add_cards(deck.deal_one())
                         elif pchoice == 1:
-                            #If the player choses to stand, the dealer keeps playing
+                            #If all players have hit, exit the loop
+                            #Better to do a round class or something like that, it will only have the players and dealer
+                            #that stills plays. When it's empty the round is over and we determine the winners
+                            #If the player choses to stand, the dealer keeps playing <- put this at the end of the player phase
                             if dealer.plays():
                                 dealer.add_cards(deck.deal_one())
                             continue
