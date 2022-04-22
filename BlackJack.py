@@ -12,13 +12,13 @@
 
 # And most importantly:
 
-# You must use OOP and classes in some portion of your game. 
-# You can not just use functions in your game. 
-# Use classes to help you define the Deck and the Player's hand. 
+# You must use OOP and classes in some portion of your game.
+# You can not just use functions in your game.
+# Use classes to help you define the Deck and the Player's hand.
 # There are many right ways to do this, so explore it well!
 
-# Feel free to expand this game. Try including multiple players. 
-# Try adding in Double-Down and card splits! 
+# Feel free to expand this game. Try including multiple players.
+# Try adding in Double-Down and card splits!
 
 import random
 import time
@@ -36,7 +36,7 @@ ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
 values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8,
             'Nine':9, 'Ten':10, 'Jack':10, 'Queen':10, 'King':10, 'Ace':11}
 
-#Defining the hand class. 
+#Defining the hand class.
 #Every player will have a hand containing cards
 class Hand:
 
@@ -100,13 +100,13 @@ class Card:
 #A deck of cards
 class Deck:
 
-    #For each suit and rank, create a card object 
+    #For each suit and rank, create a card object
     def __init__(self):
         self.cards = []
         for suit in suits:
             for rank in ranks:
                 self.cards.append(Card(suit,rank))
-    
+
     #Imports random for shuffling the deck
     def shuffle_cards(self):
         random.shuffle(self.cards)
@@ -118,12 +118,13 @@ class Deck:
 
 class Player:
 
-
+    #Initialises the player with an empty hand and an empty bet
     def __init__(self, name, money):
         self.name = name
         self.money = int(money)
         self.hand = Hand()
         self.busted = False
+        self.bet = 0
 
     #Prints Player name and his actual money
     def __str__(self):
@@ -138,6 +139,8 @@ class Player:
     def remaining_money(self):
         return self.money
 
+    #If the player is able to bet, make change the class attribute and remove that from
+    #his total ammount
     def betting(self, amount):
         if self.remaining_money()<amount:
             return False
@@ -158,10 +161,12 @@ class Player:
     def clearhand(self):
         del self.hand
         self.hand = Hand()
-    
+
+    #Returns the player hand value
     def handvalue(self):
         return self.hand.handvalue()
-
+    #Calls the hand method to know if the player is busted and returns
+    #the busted status
     def isBusted(self):
         if self.hand.handbusted():
             self.busted = True
@@ -173,7 +178,7 @@ class Dealer(Player):
 
     def printhand(self):
         print(self.hand.__str__(1))
-    
+
     #The dealer have to grab cards until it reaches 17
     def plays(self):
         if self.hand.value >= 17:
@@ -187,7 +192,7 @@ class Round:
 
     def __init__(self):
         self.player = []
-    
+
     def addPlayer(self, p):
         self.player.append(p)
 
@@ -213,7 +218,7 @@ def printwelcome():
     print("{0:<10}{1:^60}{2:>10}".format("*","Good Luck !","*"))
     print("*"*80)
 
-#End message 
+#End message
 def printend():
     print("*"*80)
     print("{0:<10}{1:^60}{2:>10}".format("*","Well, we hope you had fun at least","*"))
@@ -239,7 +244,7 @@ if __name__ == "__main__":
     deck = Deck()
     deck.shuffle_cards()
     dealer = Dealer("Dealer", 90000)
-    
+
     #Welcome message
     printwelcome()
     #Requesting user data
@@ -264,6 +269,8 @@ if __name__ == "__main__":
 
     #Main game loop
     while len(playerslist) > 0:
+        #Start the round
+        gameround = Round()
         for p in playerslist:
             while True:
                 clrscr()
@@ -274,10 +281,10 @@ if __name__ == "__main__":
                 try:
                     bet = int(input('Bet: '))
                     if bet == 0:
-                        playerslist.pop(0) #removes the player from the playerlist
+                        playerslist.pop(p) #removes the player from the playerlist
                         break
                     elif p.betting(bet):
-                        ## TODO initialize the round class and add the player
+                        gameround.addPlayer(p)  #adds the player to the round
                         p.add_cards(deck.deal_one())
                         p.add_cards(deck.deal_one())
                         break
