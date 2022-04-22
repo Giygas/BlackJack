@@ -1,77 +1,84 @@
-# # Milestone Project 2 - Blackjack Game
-# In this milestone project you will be creating a Complete BlackJack Card Game in Python.
+"""
+Milestone Project 2 - Blackjack Game
+In this milestone project you will be creating a Complete BlackJack Card Game in Python.
 
-# Here are the requirements:
+Here are the requirements:
 
-# * You need to create a simple text-based [BlackJack](https://en.wikipedia.org/wiki/Blackjack) game
-# * The game needs to have one player versus an automated dealer.
-# * The player can stand or hit.
-# * The player must be able to pick their betting amount.
-# * You need to keep track of the player's total money.
-# * You need to alert the player of wins, losses, or busts, etc...
+* You need to create a simple text-based [BlackJack](https://en.wikipedia.org/wiki/Blackjack) game
+* The game needs to have one player versus an automated dealer.
+* The player can stand or hit.
+* The player must be able to pick their betting amount.
+* You need to keep track of the player's total money.
+* You need to alert the player of wins, losses, or busts, etc...
 
-# And most importantly:
+And most importantly:
 
-# You must use OOP and classes in some portion of your game.
-# You can not just use functions in your game.
-# Use classes to help you define the Deck and the Player's hand.
-# There are many right ways to do this, so explore it well!
+You must use OOP and classes in some portion of your game.
+You can not just use functions in your game.
+Use classes to help you define the Deck and the Player's hand.
+There are many right ways to do this, so explore it well!
 
-# Feel free to expand this game. Try including multiple players.
-# Try adding in Double-Down and card splits!
+Feel free to expand this game. Try including multiple players.
+Try adding in Double-Down and card splits!
+"""
 
 import random
 import time
 import os
 
 def clrscr():
+    """Method for clearing the screen"""
     if os.name == 'posix':
         _ = os.system('clear')
     else:
         _ = os.system('cls')
 
-suits = ('Hearts','Diamonds','Spades','Clubs')
-ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+SUITS = ('Hearts','Diamonds','Spades','Clubs')
+RANKS = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
         'Ten', 'Jack', 'Queen', 'King', 'Ace')
-values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8,
+VALUES = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8,
             'Nine':9, 'Ten':10, 'Jack':10, 'Queen':10, 'King':10, 'Ace':11}
 
-#Defining the hand class.
-#Every player will have a hand containing cards
 class Hand:
-
-
+    """
+        A card hand class to playing BlacKJack
+        Methods for printing, checking hand value, adding cards to the hand
+        checking if the hand is busted or if it's a BlackJack
+    """
     def __init__(self):
+        """Initialises the hand with an empty set of cards and a value of 0"""
         self.cards = []
         self.value = 0
 
-    #Printing the cards in the hand and the total value
     def __str__(self, align=0):
+        """
+            Printing the cards in the hand and the total value
+            If it's a player it aligns to the left, and right for the dealer
+        """
         output = ""
-        #Left align for players, some tabs for the dealer
         if align == 0:
             for c in self.cards:
                 output += c.ranksuit() + '\n'
             output += f'\tTotal Hand: {self.value}'
         else:
             for c in self.cards:
-                output += f'{" ":>60}' + c.ranksuit() + f'\n'
+                output += f'{" ":>60}' + c.ranksuit() + '\n'
             output += f'{" ":>50} {self.value} :Total Hand'
         return output
 
-    #Returns the value of the hand
     def handvalue(self):
+        """Returns the value of the hand"""
         return self.value
 
-    #Returns if the hand is busted
     def handbusted(self):
+        """Returns if the hand is busted"""
         if self.value > 21:
             return True
         else:
             return False
 
-    #Add a card to the hand and calculate at the same time the total hand value
     def add(self, card):
+        """Add a card to the hand and calculate at the same time the total hand value"""
         self.cards.append(card)
         if self.value > 10 and card.value == 11:
             self.value += 1
@@ -79,127 +86,161 @@ class Hand:
             self.value += card.value
 
     def isblackjack(self):
+        """Determines if the hand is a BlackJack"""
         if len(self.cards) and self.value==21:
             return True
         else:
             return False
 
 class Card:
-
+    """
+        Gaming card class.
+        Initialises the class with all the possibles combinations of suit
+        and rank, and assigns a value to each one by the rules of
+        BlackJack
+    """
     def __init__(self,suit,rank):
         self.suit = suit
         self.rank = rank
-        self.value = values[rank]
+        self.value = VALUES[rank]
 
     def ranksuit(self):
+        """Method for printing the rank and suit"""
         return f'{self.rank} of {self.suit}'
 
-    def value(self):
-        return self.value
+    #def value(self):
+    #    return self.value
 
-#A deck of cards
 class Deck:
-
-    #For each suit and rank, create a card object
+    """
+        Creates a deck, with methods to shuffle cards
+        and deal one to the player
+    """
     def __init__(self):
+        """For each suit and rank, create a card object"""
         self.cards = []
-        for suit in suits:
-            for rank in ranks:
+        for suit in SUITS:
+            for rank in RANKS:
                 self.cards.append(Card(suit,rank))
 
-    #Imports random for shuffling the deck
     def shuffle_cards(self):
+        """Imports random for shuffling the deck"""
         random.shuffle(self.cards)
 
-    #Deals one to the player and removes it from the deck
     def deal_one(self):
+        """Deals one to the player and removes it from the deck"""
         return self.cards.pop()
 
 
 class Player:
-
+    """
+        A Player class with some methods to play Blackjack
+    """
     #Initialises the player with an empty hand and an empty bet
-    def __init__(self, name, money):
-        self.name = name
-        self.money = int(money)
+    def __init__(self, p_name, p_money):
+        self.name = p_name
+        self.money = int(p_money)
         self.hand = Hand()
         self.busted = False
         self.bet = 0
 
-    #Prints Player name and his actual money
     def __str__(self):
+        """
+            Prints Player name and his actual money
+        """
         return 'Player name:\t'+self.name+'\nTotal money:\t'+str(self.money)
 
-    #Winning or losing money
     def win(self, wsum):
+        """
+            If the players wins, we add the wsum to his actual money a
+            nd set the busted status to false
+        """
         self.money += int(wsum)
         self.busted = False
 
-    #Display the remaining money
     def remaining_money(self):
+        """ Returns the actual player money """
         return self.money
 
-    #If the player is able to bet, make change the class attribute and remove that from
-    #his total ammount
     def betting(self, amount):
+        """
+            If the player is able to bet, make change the class attribute and remove that from
+            his total ammount
+        """
         if self.remaining_money()<amount:
             return False
         else:
             self.money -= amount
             self.bet = amount
             return True
-
-    #Adding a card to his hand
     def add_cards(self,card):
+        """Adding a card to his hand"""
         self.hand.add(card)
 
-    #Prints his hand
     def printhand(self):
+        """Prints his hand"""
         print(self.hand)
 
-    #Cleans his hand of cards
     def clearhand(self):
+        """Cleans his hand of cards"""
         del self.hand
         self.hand = Hand()
 
-    #Returns the player hand value
     def handvalue(self):
+        """Returns the player hand value"""
         return self.hand.handvalue()
-    #Calls the hand method to know if the player is busted and returns
-    #the busted status
     def isBusted(self):
+        """
+            Calls the hand method to check if the player is busted
+            and returns the busted status
+        """
         if self.hand.handbusted():
             self.busted = True
         return self.busted
 
-#Defining the dealer class as a child of Player
 class Dealer(Player):
-
-
+    """
+        Dealer class child of Player. Inherits the same attibutes
+        but adds a method that returns True if the dealer is
+        able to keep playing the hand
+    """
     def printhand(self):
+        """
+            Prints the dealer hand and passes 1 as parameter to the
+            print function to make it align to the right
+        """
         print(self.hand.__str__(1))
 
-    #The dealer have to grab cards until it reaches 17
     def plays(self):
+        """The dealer have to grab cards until it reaches 17"""
         if self.hand.value >= 17:
             return False
         else:
             return True
 
-#Defining the round class.
 class Round:
-
-
-    def __init__(self):
+    """
+        The playing round. Keeps track of how many players are left in the
+        round.
+        Takes the game dealer as parameter. The dealer always plays
+        If the player choices to stand, he gets removed for the
+        'playing' round and the round ends when there are no more
+        players left
+    """
+    def __init__(self, game_dealer):
         self.player = []
+        self.dealer = game_dealer
 
-    def addPlayer(self, p):
-        self.player.append(p)
+    def addPlayer(self, current_player):
+        """Adds the player that invoked the method to the 'playing' players"""
+        self.player.append(current_player)
 
-    def removePlayer(self, p):
-        self.player.remove(p)
+    def removePlayer(self, current_player):
+        """Removes the current_player for the round"""
+        self.player.remove(current_player)
 
     def hasPlayers(self):
+        """Returns True if the round still has players playing in it"""
         if self.player:
             return True
         else:
@@ -211,6 +252,7 @@ class Round:
 ############################ Printing Functions ###################################
 #Welcome message
 def printwelcome():
+    """Prints the welcome message"""
     print("*"*80)
     print("{0:<10}{1:^60}{2:>10}".format("*","Sir, this is a Casino", "*"))
     print("*"*80)
@@ -220,22 +262,19 @@ def printwelcome():
 
 #End message
 def printend():
+    """Print the ending message where there are no players in the casino"""
     print("*"*80)
     print("{0:<10}{1:^60}{2:>10}".format("*","Well, we hope you had fun at least","*"))
     print("{0:<10}{1:^60}{2:>10}".format("*","See you next time","*"))
     print("*"*80)
-
-#Prints house win and clear hands
+    
 def housewins():
+    """Prints house win"""
     print(f"{'*** House wins ***':^50}")
-    player1.clearhand()
-    dealer.clearhand()
-#Prints hand won, adds the money to the player and clear hands
+
 def playerwins():
+    """Prints hand won"""
     print(f"{'*** Hand won ***':^50}")
-    player1.win(bet*2)
-    player1.clearhand()
-    dealer.clearhand()
 
 #Main program
 if __name__ == "__main__":
@@ -270,7 +309,7 @@ if __name__ == "__main__":
     #Main game loop
     while len(playerslist) > 0:
         #Start the round
-        gameround = Round()
+        gameround = Round(dealer)
         for p in playerslist:
             while True:
                 clrscr()
@@ -284,15 +323,15 @@ if __name__ == "__main__":
                         playerslist.pop(p) #removes the player from the playerlist
                         break
                     elif p.betting(bet):
+                        p.add_cards(deck.deal_one())
+                        p.add_cards(deck.deal_one())
                         gameround.addPlayer(p)  #adds the player to the round
-                        p.add_cards(deck.deal_one())
-                        p.add_cards(deck.deal_one())
                         break
                     else:
                         print("Sorry, you don't have enough money")
                         time.sleep(1)
                         continue
-                except:
+                except ValueError():
                     print('You must input a number')
                     time.sleep(1)
                     continue
@@ -323,6 +362,7 @@ if __name__ == "__main__":
                         p.win(p.bet*2)
                     p.clearhand()
                 dealer.clearhand()
+                del gameround
                 time.sleep(2)
                 break
             #Determining the winner
@@ -344,30 +384,30 @@ if __name__ == "__main__":
             # else:
             try:
             #Choice to make for each player
-                for p in playerslist:
-                    if not p.isBusted():
-                        print(f"PLAYER: {p.name}")
-                        print('1. Stand')
-                        print('2. Hit')
-                        pchoice = int(input("Choice: "))
-                        if pchoice == 2:
-                            p.add_cards(deck.deal_one())
-                        elif pchoice == 1:
-                            #If all players have hit, exit the loop
-                            #Better to do a round class or something like that, it will only have the players and dealer
-                            #that stills plays. When it's empty the round is over and we determine the winners
-                            #If the player choses to stand, the dealer keeps playing <- put this at the end of the player phase
-                            if dealer.plays():
-                                dealer.add_cards(deck.deal_one())
-                            continue
-                        else:
-                            print('You must choose a valid option')
-                            time.sleep(1)
-                            continue
-                # TODO #
-                # Need to continue here what happens after there are no more plays available
-                # Winner detection here
-            except:
+                while gameround.hasPlayers():
+                    for p in playerslist:
+                        if not p.isBusted():
+                            print(f"PLAYER: {p.name}")
+                            print('1. Stand')
+                            print('2. Hit')
+                            pchoice = int(input("Choice: "))
+                            if pchoice == 2:
+                                p.add_cards(deck.deal_one())
+                            elif pchoice == 1:
+                                #Remove the current player
+                                gameround.removePlayer(p)
+                                #If the player choses to stand, the dealer keeps playing <- put this at the end of the player phase
+                                if dealer.plays():
+                                    dealer.add_cards(deck.deal_one())
+                                continue
+                            else:
+                                print('You must choose a valid option')
+                                time.sleep(1)
+                                continue
+                    # TODO #
+                    # Need to continue here what happens after there are no more plays available
+                    # Winner detection here
+            except ValueError():
                 print('Sorry, you must choose a valid option')
                 time.sleep(1)
                 continue
