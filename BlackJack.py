@@ -96,8 +96,8 @@ class Hand:
         """
             Method to clearing the hand
         """
-        for card in self.cards:
-            del card
+        while self.cards:
+            self.cards.pop()
         del self.cards
         self.cards=[]
         self.value=0
@@ -270,10 +270,12 @@ class Round:
             Clears each player, the player list and dealer
         """
         for current_player in self.player:
+            current_player.clearhand()
             del current_player
         del self.player
-        del self.dealer
+        dealer.clearhand()
         self.player = []
+
 ############################ Printing Functions ###################################
 #Welcome message
 def printwelcome():
@@ -347,7 +349,7 @@ if __name__ == "__main__":
                 try:
                     bet = int(input('Bet: '))
                     if bet == 0:
-                        playerslist.pop(p) #removes the player from the playerlist
+                        playerslist.remove(p) #removes the player from the playerlist
                         break
                     elif p.betting(bet):
                         p.add_cards(deck.deal_one())
@@ -463,12 +465,10 @@ if __name__ == "__main__":
                 time.sleep(3)
                 break
 
-    #Cleaning the round and each player and dealer hand
-    gameround.clear_round()
-    del gameround
-    for p in playerslist:
-        p.clearhand()
-    dealer.clearhand()
+        #Cleaning the round and each player and dealer hand
+        gameround.clear_round()
+        del gameround
+        dealer.clearhand()
 
 
 printend()
