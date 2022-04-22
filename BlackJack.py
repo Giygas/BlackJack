@@ -92,6 +92,16 @@ class Hand:
         else:
             return False
 
+    def clear_hand(self):
+        """
+            Method to clearing the hand
+        """
+        for card in self.cards:
+            del card
+        del self.cards
+        self.cards=[]
+        self.value=0
+
 class Card:
     """
         Gaming card class.
@@ -107,9 +117,6 @@ class Card:
     def ranksuit(self):
         """Method for printing the rank and suit"""
         return f'{self.rank} of {self.suit}'
-
-    #def value(self):
-    #    return self.value
 
 class Deck:
     """
@@ -145,14 +152,13 @@ class Player:
         self.bet = 0
 
     def __str__(self):
-        """
-            Prints Player name and his actual money
-        """
-        return 'Player name:\t'+self.name+'\nTotal money:\t'+str(self.money)
+        """Prints Player name and his actual money"""
+        return 'Player name:\t'+self.name \
+                +'\nTotal money:\t'+str(self.money)
 
     def win(self):
         """
-            If the players wins, we add the wsum to his actual money 
+            If the players wins, we add the wsum to his actual money
             and set the busted status to false
         """
         self.money += self.bet*2
@@ -188,9 +194,11 @@ class Player:
         print(self.hand)
 
     def clearhand(self):
-        """Cleans his hand of cards"""
-        del self.hand
-        self.hand=Hand()
+        """
+            Cleans his hand of cards and sets the busted
+            status to False
+        """
+        self.hand.clear_hand()
         self.busted=False
 
     def handvalue(self):
@@ -252,14 +260,20 @@ class Round:
             return True
         else:
             return False
-    
+
     def player_list(self):
         """Returns a list with the players remaining"""
         return self.player
 
-
-
-
+    def clear_round(self):
+        """
+            Clears each player, the player list and dealer
+        """
+        for current_player in self.player:
+            del current_player
+        del self.player
+        del self.dealer
+        self.player = []
 ############################ Printing Functions ###################################
 #Welcome message
 def printwelcome():
@@ -356,7 +370,6 @@ if __name__ == "__main__":
         #While are players in the round. Keep the hit and stand loop
         while gameround.has_players():
             clrscr()
-
             #Show each player hand
             for p in playerslist:
                 print(p)
@@ -406,7 +419,7 @@ if __name__ == "__main__":
                 #The dealer takes a card after all the payers choices
                 if dealer.plays():
                     dealer.add_cards(deck.deal_one())
-                
+
             except ValueError():
                 print('Sorry, you must choose a valid option')
                 time.sleep(1)
@@ -449,9 +462,14 @@ if __name__ == "__main__":
                             p.win()
                 time.sleep(3)
                 break
+
+    #Cleaning the round and each player and dealer hand
+    gameround.clear_round()
+    del gameround
     for p in playerslist:
         p.clearhand()
     dealer.clearhand()
+
 
 printend()
 time.sleep(3)
