@@ -54,6 +54,10 @@ class Hand:
         """
             Printing the cards in the hand and the total value
             If it's a player it aligns to the left, and right for the dealer
+            Arguments:
+                        0 (Default) : aligns the elements to the left
+                        1           : aligns the elements to the right
+
         """
         output = ""
         if align == 0:
@@ -175,6 +179,8 @@ class Player:
         """
             If the player is able to bet, make change the class attribute and remove that from
             his total ammount
+            Argument:
+                    amount: amount of money trying to bet
         """
         if self.remaining_money()<amount:
             return False
@@ -244,15 +250,15 @@ class Round:
         self.player = []
         self.dealer = game_dealer
 
-    def add_player(self, current_player):
+    def add_player(self, round_player):
         """Adds the player that invoked the method to the 'playing' players"""
-        self.player.append(current_player)
+        self.player.append(round_player)
 
-    def remove_player(self, current_player):
+    def remove_player(self, round_player):
         """
-        Removes the current_player for the round and clears his hand
+        Removes the round_player for the round and clears his hand
         """
-        self.player.remove(current_player)
+        self.player.remove(round_player)
 
     def has_players(self):
         """Returns True if the round still has players playing in it"""
@@ -265,13 +271,16 @@ class Round:
         """Returns a list with the players remaining"""
         return self.player
 
-    def clear_round(self):
+    def clear_round(self,players_list):
         """
             Clears each player, the player list and dealer
+            Argurments:
+                player_list: a list containing the players that will
+                            have his hands cleared
         """
-        for current_player in self.player:
-            current_player.clearhand()
-            del current_player
+        for round_player in players_list:
+            round_player.clearhand()
+            del round_player
         del self.player
         dealer.clearhand()
         self.player = []
@@ -295,13 +304,7 @@ def printend():
     print("{0:<10}{1:^60}{2:>10}".format("*","See you next time","*"))
     print("*"*80)
 
-def housewins():
-    """Prints house win"""
-    print(f"{'*** House wins ***':^50}")
 
-def playerwins():
-    """Prints hand won"""
-    print(f"{'*** Hand won ***':^50}")
 
 ################# MAIN PROGRAM
 if __name__ == "__main__":
@@ -337,153 +340,198 @@ if __name__ == "__main__":
         playerslist.append(Player(name, money))
         money = ""
 
-    #Main game loop
-    while len(playerslist) > 0:
+    ### MAIN GAME LOOP
+    while playerslist:
         #Start the round
-        gameround = Round(dealer)
-        for p in playerslist:
-            #Loop for checking value types
+        game_round=Round(dealer)
+        #for player in playerslist:
+        ##Need to use a index, because in the for loop, when I delete the
+        #player element with playerlist.remove(player), the index gets
+        #reduced by one and the second element gets in the first position
+        #so the loop exits immediately when there are just 2 elements
+        #and the first one leaves the table
+        i=0
+        while i < len(playerslist):
             while True:
+            #Loop for checking value types
                 clrscr()
                 print(f"{'Welcome':^60}")
-                print(p)
-                print('How much do you want to bet? (0 for leaving the table)')
-
+                print(playerslist[i])
+                print('How much do you want to bet?\
+                        (0 for leaving the table)')
                 #Check for integer input
                 try:
-                    bet = int(input('Bet: '))
-                    if bet == 0:
-                        playerslist.remove(p) #removes the player from the playerlist
-                        # if not playerslist:
-                        #     gameround.clear_round()
-                        break
-                    elif p.betting(bet):
-                        p.add_cards(deck.deal_one())
-                        p.add_cards(deck.deal_one())
-                        gameround.add_player(p)  #adds the player to the round
+                    bet=int(input("BET: "))
+                    if bet==0:
+                        #Removes the player for the player pool
+                        playerslist.pop(i)
+                        #Move the index backwards for accounting
+                        #the lost player
+                        i-=1
                         break
                     else:
-                        print("Sorry, you don't have enough money")
-                        time.sleep(1)
-                        continue
-                except ValueError():
+                        if playerslist[i].betting(bet):
+                            #If the player is able to bet, add 2 cards
+                            #to his hand and add the player to the
+                            #round
+                            playerslist[i].add_cards(deck.deal_one())
+                            playerslist[i].add_cards(deck.deal_one())
+                            game_round.add_player(playerslist[i])
+                            break
+                        else:
+                            print("Sorry, you don't have enough money")
+                            time.sleep(1)
+                            continue
+                except (TypeError, ValueError):
+                    #If the input it's not a number, redo the loop
+                    #for the current player
                     print('You must input a number')
                     time.sleep(1)
                     continue
+            i+=1
 
-        #2 cards for the dealer if there are players in the round
-        if gameround.has_players():
+        if game_round.has_players():
+            #2 cards for the dealer if there are players in the round
+            #If there aren't any players in the casino, no need for
+            #adding the cards to the dealer
             dealer.add_cards(deck.deal_one())
             dealer.add_cards(deck.deal_one())
 
-        #While are players in the round. Keep the hit and stand loop
-        while gameround.has_players():
+        #While there are players in the round, keep the hit
+        #and stand loop
+        times_played = 0
+        while game_round.has_players():
+            if times_played > 0:
+            #Ask for input after the first round
+                #for player in game_round.player_list():
+                #Same thing, need to use and index because of the for loop
+                #limitations when deleting items
+                i=0
+                round_players=game_round.player_list()
+                while i<len(round_players):
+                    if round_players[i].is_busted() \
+                        or round_players[i].hand.isblackjack():
+                        #Remove the current player for the round if
+                        #he is busted or has a blackjack
+                        game_round.remove_player(round_players[i])
+
+                    else:
+                        #Ask for user input whether Stand or Hit
+                        while True:
+                            #Loop for checking for value type
+                            try:
+                                print(f"PLAYER: {round_players[i].name}")
+                                print('1. Stand')
+                                print('2. Hit')
+                                pchoice = int(input("Choice: "))
+                                if pchoice==2:
+                                    #If the player choses to hit, add a card
+                                    round_players[i].add_cards(deck.deal_one())
+                                    i+=1 #move the index forward
+                                    break
+                                elif pchoice==1:
+                                    #Remove the current player from the round
+                                    game_round.remove_player(round_players[i])
+                                    break
+                            except ValueError():
+                            #Wrong selection
+                                print('You must choose a valid option')
+                                time.sleep(1)
+                #The dealer takes 1 card if he is able to play
+                #after all the player have chosen
+                if dealer.plays():
+                    dealer.add_cards(deck.deal_one())
+
+            #Choice step has ended, print all the players
+            #and dealer hand
             clrscr()
-            #Show each player hand
-            for p in gameround.player_list():
-                print(p)
-                print(f'Money in play: {p.bet:>10}')
+            for player in playerslist:
+                #Players hands
+                print(player)
+                print(f'Money in play: {player.bet:>10}')
                 print("-"*20)
                 print('PLAYER HAND')
-                p.printhand()
-                if p.is_busted():
-                    print("*"*20 + "BUSTED :(")
-                    gameround.remove_player(p)
+                player.printhand()
                 print("="*60)
-                time.sleep(1)
+                #time.sleep(1)
 
             #Show the dealer hand
             print(f'{" ":>60}DEALER HAND')
             dealer.printhand()
 
-            #If the dealer is busted, all players that are not busted wins
-            if dealer.is_busted():
-                #If the dealer is busted, everyone that aren't busted wins
-                print("*"*20)
-                print("End of the Round")
-                print("*"*20)
-                print("** DEALER BUSTED **")
-                print("-"*20)
-                for p in playerslist:
-                    if not p.is_busted():
-                        print (f"{p.name}: WINS {p.bet}")
-                        p.win()
-                exittimer=input("Press ENTER to continue")
+            #Evaluate if the dealer is either busted or
+            #has a blackjack
+            if dealer.is_busted() or dealer.hand.isblackjack():
+                #time.sleep(1)
                 break
-            #Else, if the dealer has a blackjack, only the players that
-            #have a blackjack are tied with the dealer
-            elif dealer.hand.isblackjack():
+            #increase the times the players have played the round
+            times_played+=1
 
-                print("** DEALER BLACKJACK **")
-                for p in playerslist:
-                    if p.hand.isblackjack():
-                        print(f"Player {p.name} TIED, no chips are lost :)")
-                        p.tie()
-                exittimer=input("Press ENTER to continue")
-                break
-
-            # try:
-                #Choice to make for each player that are not busted and don't
-                #have a blackjack
-            for p in gameround.player_list():
-                #Loop for requesting to input a valid number
-                while not p.is_busted() and not p.hand.isblackjack():
-                    try:
-                        print(f"PLAYER: {p.name}")
-                        print('1. Stand')
-                        print('2. Hit')
-                        pchoice = int(input("Choice: "))
-                        if pchoice==2:
-                            #If the player choses to hit, add a card
-                            p.add_cards(deck.deal_one())
-                            break
-                        elif pchoice==1:
-                            #Remove the current player
-                            gameround.remove_player(p)
-                            break
-                    except ValueError():
-                    #Wrong selection
-                        print('You must choose a valid option')
-                        time.sleep(1)
-            #The dealer takes a card after all the players choices
-            if dealer.plays():
-                dealer.add_cards(deck.deal_one())
-                continue
-
-            #If there are no players remaining, the dealer keeps adding
-            #cards while he can play
-        while dealer.plays() and gameround.has_players():
-            dealer.add_cards(deck.deal_one())
-        ### TODO: PRINT THE DEALER HAND A SECOND TIME
-        ### ROUND ENDS HERE
-
-        ### WINNER DETECTION
-        #If the dealer is not busted, and has not a blackjack
-        #should compare all the players hands with the dealer
-        #No Blackjack and no Bust
+        ### NO MORE PLAYERS IN THE ROUND
+        #If the dealer can still plays, keeps adding cards
         if playerslist:
-            #If the player list is not empty, show the
-            #end of round message
+            #If there are players in the casino, print hands
+            clrscr()
+            while dealer.plays():
+                #The dealer keep adding cards if he can still play
+                dealer.add_cards(deck.deal_one())
+            #Print all hands again and the end of round
+            for player in playerslist:
+                print(player)
+                print(f'Money in play: {player.bet:>5}')
+                print("-"*20)
+                print('PLAYER HAND')
+                player.printhand()
+                if player.is_busted():
+                    print(f"{'*'*25} BUSTED {'*'*25}")
+                elif player.hand.isblackjack():
+                    print(f"{'*'*25} BLACKJACK {'*'*25}")
+                else:
+                    print("="*60)
+                time.sleep(1)
+            print(f'{" ":>60}DEALER HAND')
+            dealer.printhand()
             print("*"*20)
             print("End of the Round")
             print("*"*20)
-        for winner_player in playerslist:
-            if winner_player.is_busted():
-                print (f"{winner_player.name}: BUSTED")
-                time.sleep(1)
+            if dealer.is_busted():
+                #If the dealer is busted, everyone that are not busted
+                #will win
+                print("DEALER BUSTED")
+                for player in playerslist:
+                    if not player.is_busted():
+                        print(f"Player: {player.name} WINS {player.bet}")
+                        player.win()
+                    else:
+                        print(f"Player: {player.name} LOSSES {player.bet}")
+            elif dealer.hand.isblackjack():
+                #if the dealer has blackjack, everyone that has a
+                #blackjack will tie with the house
+                print("DEALER BLACKJACK")
+                for player in playerslist:
+                    if player.hand.isblackjack():
+                        print(f"Player: {player.name}\
+                            TIES WITH THE HOUSE {player.bet}")
+                        player.tie()
+                    else:
+                        print(f"Player: {player.name} LOSSES {player.bet}")
             else:
-                if winner_player.handvalue()>=dealer.handvalue():
-                    print(f"{winner_player.name}: WINS {winner_player.bet}")
-                    winner_player.win()
-                    time.sleep(1)
-                else:
-                    print(f"{winner_player.name}: LOSSES {winner_player.bet}")
-                    time.sleep(1)
-        time.sleep(1)
-        #Clear everything
-        gameround.clear_round()
-        for players_in_table in playerslist:
-            players_in_table.clearhand()
-
-printend()
+                #If the dealer is not busted and doesn't have a blackjack
+                #compare each player hand with the dealer
+                for player in playerslist:
+                    if player.handvalue()>dealer.handvalue() and (not player.is_busted()):
+                        print(f"Player: {player.name} WINS {player.bet}")
+                        player.win()
+                    elif player.handvalue()>dealer.handvalue()\
+                                        and (not player.is_busted()):
+                        print(f"Player: {player.name}\
+                            TIES WITH THE HOUSE {player.bet}")
+                        player.win()
+                    else:
+                        print(f"Player: {player.name} LOSSES {player.bet}")
+            #Wait for user input before continue
+            input("Press ENTER to continue")
+            game_round.clear_round(playerslist)
+        else:
+            printend()
 time.sleep(3)
