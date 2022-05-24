@@ -18,5 +18,3 @@ Here are the requirements:
 - The player must be able to pick their betting amount.
 - You need to keep track of the player's total money.
 - You need to alert the player of wins, losses, or busts, etc...
-
-And most importantly:
