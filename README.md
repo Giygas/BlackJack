@@ -1,7 +1,9 @@
 # BlackJack
 
 A simple BlackJack game made in Python as a part of a programming course
+
 You can play versus other players in your local computer
+
 Have fun !
 
 
