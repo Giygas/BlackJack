@@ -1,12 +1,11 @@
 # BlackJack
 
-Multiplayer functionality done.
-Will not continue whit the others additions, because I want to continue
-the Python course.
+A simple BlackJack game made in Python as a part of a programming course
+You can play versus other players in your local computer
+Have fun !
+
 
 # Original demand
-
-Milestone Project 2 - Blackjack Game
 In this milestone project you will be creating a Complete BlackJack Card Game in Python.
 
 Here are the requirements:
@@ -19,11 +18,3 @@ Here are the requirements:
 - You need to alert the player of wins, losses, or busts, etc...
 
 And most importantly:
-
-You must use OOP and classes in some portion of your game.
-You can not just use functions in your game.
-Use classes to help you define the Deck and the Player's hand.
-There are many right ways to do this, so explore it well!
-
-Feel free to expand this game. Try including multiple players.
-Try adding in Double-Down and card splits!
